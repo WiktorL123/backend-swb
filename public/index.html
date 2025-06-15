@@ -3,34 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <title>SWB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style>
+        html {
+            font-family: Helvetica;
+            display: inline-block;
+            margin: 0 auto;
+            text-align: center;
+        }
+        body {
+            margin-top: 50px;
+        }
+        h1 {
+            color: #444444;
+            margin: 50px auto 30px;
+        }
+        p {
+            font-size: 24px;
+            color: #444444;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            font-size: 20px;
+            margin: 10px auto;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            max-width: 400px;
+        }
+    </style>
 </head>
 <body>
-<h1>Tempetatura</h1>
+<h1>ESP32 Weather Station</h1>
 <div id="main">
-<ul id="temp-list"></ul>
+    <ul id="temp-list"></ul>
 </div>
+
 <script>
+    //dopisuje kolejne odczyty
+    // const loadTemperatures = () => {
+    //     fetch('/api/conditions')
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const list = document.getElementById('temp-list');
+    //             list.innerHTML = '';
+    //             data.conditions.forEach(entry => {
+    //                 const li = document.createElement('li');
+    //                 li.innerHTML = `
+    //                         <p><strong>Czas:</strong> ${new Date(entry.time).toLocaleTimeString()}</p>
+    //                         <p><strong> 🌡️Temperatura:</strong> ${entry.temperature} &deg;C</p>
+    //                         <p><strong> 💧Wilgotność:</strong> ${entry.humidity} %</p>
+    //                         <p><strong> 📈Ciśnienie:</strong> ${entry.pressure} hPa</p>
+    //                         <p><strong> ⛰️Wysokość:</strong> ${entry.altitude} m</p>
+    //                     `;
+    //                 list.appendChild(li);
+    //             });
+    //         })
+    //         .catch(error => console.log(error));
+    // }
 
-
-    const loadTemperatures = () =>{
-
-        fetch('http://localhost:3000/api/temperatures')
+    //zastepuje kolejne odczyty
+    const loadTemperatures = () => {
+        fetch('/api/conditions')
             .then(response => response.json())
             .then(data => {
                 const list = document.getElementById('temp-list');
                 list.innerHTML = '';
-                data.temperatures.forEach(data=>{
-                    const li = document.createElement('li');
-                    li.innerText = `temperatura: ${data.temperature} °C o, czas: ${new Date(data.time).toLocaleDateString()} `
-                    list.appendChild(li);
-                })
+
+                const last = data.conditions.at(-1); // najnowszy wpis
+
+                if (!last) return;
+
+                const li = document.createElement('li');
+                li.innerHTML = `
+                <p><strong>Czas:</strong> ${new Date(last.time).toLocaleTimeString()}</p>
+                <p><strong> 🌡️Temperatura:</strong> ${last.temperature} &deg;C</p>
+                <p><strong> 💧Wilgotność:</strong> ${last.humidity} %</p>
+                <p><strong> 📈Ciśnienie:</strong> ${last.pressure} hPa</p>
+                <p><strong> ⛰️Wysokość:</strong> ${last.altitude} m</p>
+            `;
+                list.appendChild(li);
             })
-            .catch(error => console.log(error))
-    }
+            .catch(error => console.log(error));
+    };
+
     loadTemperatures();
-
-    setInterval(loadTemperatures, 3000);
-
+    setInterval(loadTemperatures, 1000);
 </script>
 </body>
 </html>

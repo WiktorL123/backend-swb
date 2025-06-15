@@ -1,17 +1,25 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+const cors = require('cors');
 const port = 3000;
+
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let temperatures = []
+let conditions = []
 
-app.post('/api/temperatures', (req, res) => {
-    const {temperature} = req.body;
+app.post('/api/conditions', (req, res) => {
+    const {temperature, humidity, pressure, altitude  } = req.body;
     try {
-        temperatures.push({temperature: temperature, time: new Date()});
-        return res.status(200).json({message: 'saved', temperature: temperature});
+        conditions.push({
+            temperature: temperature,
+            humidity: humidity,
+            pressure: pressure,
+            altitude: altitude,
+            time: new Date()});
+        return res.status(200).json({message: 'saved', conditions: conditions});
     }
     catch (error) {
         console.log(error);
@@ -19,10 +27,10 @@ app.post('/api/temperatures', (req, res) => {
     }
 })
 
-app.get('/api/temperatures', (req, res) => {
+app.get('/api/conditions', (req, res) => {
     try {
-        console.log(temperatures);
-        return res.status(200).json({message: 'temperatues:', temperatures});
+        console.log(conditions);
+        return res.status(200).json({message: 'conditions:', conditions});
     }
     catch (error) {
         console.log(error);
